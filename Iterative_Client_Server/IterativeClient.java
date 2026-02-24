@@ -24,6 +24,7 @@ public class IterativeClient extends Thread {
             dis.close();
             dos.close();
             cs.close();
+            sc.close();
             return;
         }
 

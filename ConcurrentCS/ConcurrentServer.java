@@ -66,7 +66,7 @@ class ClientThread implements Runnable {
                 String sent;
 
                 synchronized (sc) {
-                // Synchronize console access
+                    // Synchronize console access
                     System.out.print("Reply to " + ip + ":" + cli_port + " -> ");
                     sent = sc.nextLine();
                 }

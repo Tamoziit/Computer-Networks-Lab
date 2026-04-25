@@ -1,4 +1,4 @@
-package practice.iterative2;
+package practice.concurrent;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

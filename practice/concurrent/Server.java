@@ -1,4 +1,4 @@
-package practice.iterative2;
+package practice.concurrent;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -10,19 +10,40 @@ import java.util.Date;
 import java.util.Scanner;
 
 public class Server {
-    public static void main(String[] args) throws IOException {
-        Scanner sc = new Scanner(System.in);
+    final static Scanner sc = new Scanner(System.in);
 
+    @SuppressWarnings("resource")
+    public static void main(String[] args) throws IOException {
         int PORT = 47000;
         ServerSocket ss = new ServerSocket(PORT);
-        System.out.println("Server running on PORT: " + PORT);
+        System.out.println("Server is running on PORT: " + PORT);
 
         int count = 0;
-
         while (true) {
-            Socket s = ss.accept(); // for each new connection
+            Socket s = ss.accept();
             count++;
 
+            ClientHandlerThread ob = new ClientHandlerThread(s, sc, count);
+            Thread t = new Thread(ob);
+            t.start();
+        }
+    }
+}
+
+class ClientHandlerThread implements Runnable {
+    Socket s;
+    Scanner sc;
+    int count;
+
+    ClientHandlerThread(Socket s, Scanner sc, int count) {
+        this.s = s;
+        this.sc = sc;
+        this.count = count;
+    }
+
+    @Override
+    public void run() {
+        try {
             InetAddress clip = s.getInetAddress();
             String IP = clip.getHostAddress();
             int cli_port = s.getPort();
@@ -44,21 +65,16 @@ public class Server {
                     break;
                 }
 
-                System.out.println("Enter message:");
-                String sent = sc.nextLine();
+                String sent;
+
+                synchronized (sc) {
+                    System.out.println("Enter message:");
+                    sent = sc.nextLine();
+                }
                 dos.writeUTF(sent);
             }
-
-            System.out.println("Terminate Server? y/n");
-            String prompt = sc.nextLine();
-
-            if (prompt.equalsIgnoreCase("y")) {
-                System.out.println("Terminating Server...");
-                break;
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        ss.close();
-        sc.close();
     }
 }
